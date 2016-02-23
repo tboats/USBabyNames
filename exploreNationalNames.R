@@ -169,7 +169,8 @@ df_c <- filter(df_agg_total_consistent, totalCounts > countThresh)
 df_c <- df_c[order(df_c$pctSigma, decreasing = FALSE),]
 
 # plot the most consistent names
-q <- ggplot(data = filter(df_national, identifier %in% df_c$identifier[1:8]), aes(x = Year, y = CountFrac, col = Name, shape = Gender))
+nNames <- 8
+q <- ggplot(data = filter(df_national, identifier %in% df_c$identifier[1:nNames]), aes(x = Year, y = CountFrac, col = Name, shape = Gender))
 q + geom_point(size = 2, alpha = 0.5) +
   scale_y_log10(limits = c(1e-05, 1e-1)) +
   ylab("Count normalized by count of all names in year") +
@@ -177,7 +178,7 @@ q + geom_point(size = 2, alpha = 0.5) +
 
 # plot the least consistent names
 end_dim <- dim(df_c)[1]
-q <- ggplot(data = filter(df_national, identifier %in% df_c$identifier[(end_dim-8):end_dim]), aes(x = Year, y = CountFrac, col = Name, shape = Gender))
+q <- ggplot(data = filter(df_national, identifier %in% df_c$identifier[(end_dim-nNames+1):end_dim]), aes(x = Year, y = CountFrac, col = Name, shape = Gender))
 q + geom_point(size = 2, alpha = 0.5) +
   scale_y_log10(limits = c(1e-05, 1e-1)) +
   ylab("Count normalized by count of all names in year") +
