@@ -16,6 +16,12 @@ library(plotly)
 ## Load data
 df_national <- read.csv("data/NationalNames.csv", stringsAsFactors = FALSE)
 
+## Add features
+df_national$identifier <- with(df_national, paste(Name, Gender, sep="_"))
+
+# normalize the count by the total count within each year
+df_national$CountFrac <- ave(df_national$Count, df_national$Year, FUN = function(x) x/sum(x))
+
 ####################################################################################
 ## Explore: most common names through all time
 ptm <- proc.time()
@@ -40,7 +46,7 @@ print(q)
 
 # combine name and gender
 df_agg_total$identifier <- with(df_agg_total, paste(Name, Gender, sep="_"))
-df_national$identifier <- with(df_national, paste(Name, Gender, sep="_"))
+
 
 
 topN <- 70
@@ -72,6 +78,7 @@ df_agg_recent <- ddply(df_national_recent, .(Name, Gender), summarize, totalCoun
 proc.time() - ptm
 
 ## order the aggregated total
+df_agg_recent$identifier <- with(df_agg_recent, paste(Name, Gender, sep="_"))
 df_agg_recent <- df_agg_recent[order(df_agg_recent$totalCounts, decreasing = TRUE),]
 
 # plot the top 100 names
@@ -89,3 +96,29 @@ q + geom_point(size = 3, alpha = 0.5)
 
 q <- ggplot(data = filter(df_national, Name %in% c("Thomas", "Julie")), aes(x = Year, y = Count, col = Name))
 q + geom_point(size = 3, alpha = 0.5)
+
+## Explore: weird names
+q <- ggplot(data = filter(df_national, Name %in% c("Barack")), aes(x = Year, y = Count, col = Name))
+q + geom_point(size = 3, alpha = 0.5)
+
+
+####################################################################################
+## Are people choosing more obscure names in the last 10 years?
+
+# grab top 100 names from last 10 years
+topN <- 100
+top_recent_identifiers <- df_agg_recent$identifier[1:topN]
+
+# select those top names from the full data set
+df_full_topRecent <- filter(df_agg_total, identifier %in% top_recent_identifiers)
+
+# join the recent and full sets
+df_join <- full_join(df_full_topRecent, df_agg_recent, by = "identifier")
+names(df_join)[names(df_join) %in% "totalCounts.x"] <- "totalCounts_full"
+names(df_join)[names(df_join) %in% "totalCounts.y"] <- "totalCounts_recent"
+
+# scatter plot of the counts
+names(df_join)
+
+q <- ggplot(data=df_join, aes(x = totalCounts_full, y = totalCounts_recent))
+q + geom_point(size=5, alpha = 0.5)
