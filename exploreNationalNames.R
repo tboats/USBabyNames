@@ -25,7 +25,7 @@ df_national$CountFrac <- ave(df_national$Count, df_national$Year, FUN = function
 
 ####################################################################################
 ## Explore: most common names through all time
-# sum the name counts over all years (takes ~60s)
+# sum the name counts over all years (takes ~120s)
 ptm <- proc.time()
 df_agg_total <- ddply(df_national, .(Name, Gender), summarize, totalCounts = sum(Count), peakYear = mean(Year[Count == max(Count)]), avgFrac = mean(CountFrac))
 proc.time() - ptm
@@ -169,12 +169,14 @@ df_c <- filter(df_agg_total_consistent, totalCounts > countThresh)
 df_c <- df_c[order(df_c$pctSigma, decreasing = FALSE),]
 
 # plot the most consistent names
-q <- ggplot(data = filter(df_national, identifier %in% df_c$identifier[1:8]), aes(x = Year, y = CountFrac, col = Name))
-q + geom_point(size = 3, alpha = 0.5) +
-  scale_y_log10(limits = c(1e-05, 1e-1))
+q <- ggplot(data = filter(df_national, identifier %in% df_c$identifier[1:8]), aes(x = Year, y = CountFrac, col = Name, shape = Gender))
+q + geom_point(size = 2, alpha = 0.5) +
+  scale_y_log10(limits = c(1e-05, 1e-1)) +
+  ylab("Count normalized by count of all names in year")
 
 # plot the least consistent names
 end_dim <- dim(df_c)[1]
-q <- ggplot(data = filter(df_national, identifier %in% df_c$identifier[(end_dim-8):end_dim]), aes(x = Year, y = CountFrac, col = Name))
-q + geom_point(size = 3, alpha = 0.5) +
-  scale_y_log10(limits = c(1e-05, 1e-1))
+q <- ggplot(data = filter(df_national, identifier %in% df_c$identifier[(end_dim-8):end_dim]), aes(x = Year, y = CountFrac, col = Name, shape = Gender))
+q + geom_point(size = 2, alpha = 0.5) +
+  scale_y_log10(limits = c(1e-05, 1e-1)) +
+  ylab("Count normalized by count of all names in year")
