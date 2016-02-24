@@ -171,15 +171,27 @@ df_c <- df_c[order(df_c$pctSigma, decreasing = FALSE),]
 # plot the most consistent names
 nNames <- 8
 q <- ggplot(data = filter(df_national, identifier %in% df_c$identifier[1:nNames]), aes(x = Year, y = CountFrac, col = Name, shape = Gender))
-q + geom_point(size = 2, alpha = 0.5) +
+q <- q + geom_point(size = 2, alpha = 0.5) +
   scale_y_log10(limits = c(1e-05, 1e-1)) +
   ylab("Count normalized by count of all names in year") +
-  ggtitle("Most Consistent Names")
+  ggtitle("Most Consistent Baby Names") +
+  theme(text = element_text(size=16))
+saveName <- paste("MostConsistentBabyNames.png", sep="")
+png(saveName, width = 800, height = 600)
+print(q)
+dev.off()
+
+
 
 # plot the least consistent names
 end_dim <- dim(df_c)[1]
 q <- ggplot(data = filter(df_national, identifier %in% df_c$identifier[(end_dim-nNames+1):end_dim]), aes(x = Year, y = CountFrac, col = Name, shape = Gender))
-q + geom_point(size = 2, alpha = 0.5) +
+q <- q + geom_point(size = 2, alpha = 0.5) +
   scale_y_log10(limits = c(1e-05, 1e-1)) +
   ylab("Count normalized by count of all names in year") +
-  ggtitle("Least Consistent Names")
+  ggtitle("Least Consistent Baby Names") +
+  theme(text = element_text(size=16))
+saveName <- paste("LeastConsistentBabyNames.png", sep="")
+png(saveName, width = 800, height = 600)
+print(q)
+dev.off()
